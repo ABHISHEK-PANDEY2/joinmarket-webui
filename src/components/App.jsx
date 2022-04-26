@@ -23,6 +23,8 @@ import Cheatsheet from './Cheatsheet'
 import { routes } from '../constants/routes'
 import { isFeatureEnabled } from '../constants/featureFlags'
 
+import * as ObwatchApi from '../libs/JmObwatchApi'
+
 export default function App() {
   const { t } = useTranslation()
   const settings = useSettings()
@@ -37,6 +39,15 @@ export default function App() {
   const [showCheatsheet, setShowCheatsheet] = useState(false)
 
   const cheatsheetEnabled = currentWallet && isFeatureEnabled('cheatsheet')
+
+  useEffect(() => {
+    const abortCtrl = new AbortController()
+    ObwatchApi.fetchOrderbook({ signal: abortCtrl.signal })
+      .then((val) => console.log(val))
+      .catch((e) => console.warn(e))
+
+    return () => abortCtrl.abort()
+  }, [])
 
   const startWallet = useCallback(
     (name, token) => {
